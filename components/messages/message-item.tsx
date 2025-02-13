@@ -1,7 +1,6 @@
 import { memo } from "react"
 import { motion } from "motion/react"
 
-import { WorkflowResult } from "@/lib/api/types"
 import { ClientMessage } from "@/lib/chat/types"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -24,18 +23,7 @@ const MESSAGE_ANIMATION = {
 		hidden: { opacity: 0, y: -10, transition: { duration: 0.5 } }
 	}
 }
-const renderWorkflowFiles = (files?: WorkflowResult["files"]) => {
-	return files?.map(file => (
-		<a
-			key={file.url}
-			href={file.url}
-			target="_blank"
-			rel="noreferrer"
-			className="block hover:text-blue-500">
-			{file.name}
-		</a>
-	))
-}
+
 
 const handleToolResult = (toolName: string, result: unknown) => {
 	switch (toolName) {
@@ -44,25 +32,6 @@ const handleToolResult = (toolName: string, result: unknown) => {
 
 		case "startWorkflow":
 			return <SystemMessage>{result as string}</SystemMessage>
-
-		case "getWorkflowResult": {
-			const workflowResult = result as WorkflowResult
-			return (
-				<>
-					{workflowResult.status !== "done" && (
-						<BotMessage content="Work is pending, no results yet." />
-					)}
-					{workflowResult.status === "done" && (
-						<BotCard>
-							<p className="mb-2 font-semibold">Results:</p>
-							<div className="space-y-1">
-								{renderWorkflowFiles(workflowResult.files)}
-							</div>
-						</BotCard>
-					)}
-				</>
-			)
-		}
 
 		default:
 			return <BotMessage content={JSON.stringify(result)} />

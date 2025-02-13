@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users, Briefcase, AlertTriangle, Activity } from 'lucide-react';
-import { MetricWidget } from '../types';
+import { MetricWidget } from '@/lib/types';
 
 interface MetricsGridProps {
   metrics: MetricWidget[];
