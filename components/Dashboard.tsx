@@ -50,21 +50,21 @@ const Dashboard: React.FC = () => {
 		{
 			id: "1",
 			title: "Total Candidates",
-			value: "156",
+			value: "20",
 			change: 12,
 			icon: "Users"
 		},
 		{
 			id: "2",
 			title: "Active Offers",
-			value: "45",
+			value: "16",
 			change: -5,
 			icon: "Briefcase"
 		},
 		{
 			id: "3",
 			title: "Cold Candidates",
-			value: "23",
+			value: "13",
 			change: 8,
 			icon: "AlertTriangle"
 		},
