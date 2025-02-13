@@ -26,9 +26,16 @@ const activityData = [
   { day: 'Fri', actions: 48 },
 ];
 
+// Add these types near the top of the file, after the imports
+type WidgetId = 'responseTime' | 'emailEngagement' | 'touchpoints' | 'activity';
+
+type WidgetFilters = {
+  [K in WidgetId]: string;
+};
+
 const CustomWidgets: React.FC = () => {
   const [timeRange, setTimeRange] = useState('week');
-  const [widgetFilters, setWidgetFilters] = useState({
+  const [widgetFilters, setWidgetFilters] = useState<WidgetFilters>({
     responseTime: 'all',
     emailEngagement: 'all',
     touchpoints: 'all',
@@ -43,7 +50,7 @@ const CustomWidgets: React.FC = () => {
       change: -15,
       chart: 'bar',
       filters: ['All Teams', 'Engineering', 'Product', 'Design'],
-      id: 'responseTime',
+      id: 'responseTime' as WidgetId,
       renderChart: () => (
         <BarChart width={300} height={120} data={responseTimeData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
