@@ -53,11 +53,11 @@ export const MessageItem = memo(function MessageItem({
 				</>
 			)}
 
-			{message.role === "user" && (
+			{message.role === "user" && !message.content.toString().includes("[User has uploaded files") && (
 				<UserMessage>{message.content as string}</UserMessage>
 			)}
 
-			{message.role === "system" && (
+			{(message.role === "system" || (message.role === "user" && message.content.toString().includes("[User has uploaded files"))) && (
 				<SystemMessage>{message.content as string}</SystemMessage>
 			)}
 

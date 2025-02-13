@@ -58,6 +58,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
       }
     }
   }, [messages, isDialogOpen])
+console.log(messages, 'messages');
 
   return (
     <>

@@ -53,3 +53,33 @@ export interface MetricWidget {
   change: number;
   icon: string;
 }
+interface CandidateListProps {
+  onStatusSelect: (status: string) => void;
+}
+
+export interface Candidate {
+  id: string;
+  fullName: string;
+  role: string;
+  emailOpenRate: number;
+  responseTime: number;
+  touchpointCompletion: number;
+  lastActivity: string;
+  engagement_score: number;
+  avatar: string;
+  email?: string;
+  linkedinActivity?: string;
+  naukriActivity?: string;
+  offerStatus?: string;
+  jobSearchActivity?: string;
+  whatsappResponse?: string;
+  loop_usage_time?: number;
+  final_outcome?: string;
+  action?: string;
+  timestamp?: string;
+  offer_status?: string;
+  naukri_activity?: string;
+  linkedin_activity?: string;
+  whatsapp_response?: string;
+  job_search_activity?: string;
+}

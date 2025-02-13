@@ -7,39 +7,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ScrollArea } from './ui/scroll-area';
 import { Skeleton } from "./ui/skeleton";
+import { Candidate } from '@/lib/types';
 
 interface CandidateListProps {
   onStatusSelect: (status: string) => void;
+  setSelectedFilter: (status: string) => void;
+  loading: boolean;
+  error: string | null;
+  candidates: Candidate[];
+  selectedFilter: string;
+  setExpandedCandidate: (id: string | null) => void;
+  expandedCandidate: string | null;
 }
-
-interface Candidate {
-  id: string;
-  fullName: string;
-  role: string;
-  status: string;
-  emailOpenRate: number;
-  responseTime: number;
-  touchpointCompletion: number;
-  lastActivity: string;
-  engagement_score: number;
-  avatar: string;
-  email?: string;
-  linkedinActivity?: string;
-  naukriActivity?: string;
-  offerStatus?: string;
-  jobSearchActivity?: string;
-  whatsappResponse?: string;
-  loop_usage_time?: number;
-  final_outcome?: string;
-  action?: string;
-  timestamp?: string;
-  offer_status?: string;
-  naukri_activity?: string;
-  linkedin_activity?: string;
-  whatsapp_response?: string;
-  job_search_activity?: string;
-}
-
 const activityLog = [
   { id: 1, type: 'email_opened', points: 10, timestamp: '2024-03-15T10:30:00', description: 'Opened onboarding email' },
   { id: 2, type: 'link_clicked', points: 15, timestamp: '2024-03-15T11:45:00', description: 'Clicked job description link' },
@@ -48,37 +27,17 @@ const activityLog = [
   { id: 5, type: 'email_unsubscribed', points: -10, timestamp: '2024-03-15T14:00:00', description: 'Unsubscribed from communications' },
 ];
 
-const CandidateList: React.FC<CandidateListProps> = ({ onStatusSelect }) => {
-  const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        setLoading(true);
-        const url = selectedFilter === 'all' 
-          ? '/api/candidate'
-          : `/api/candidate?status=${selectedFilter}`;
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error('Failed to fetch candidates');
-        }
-        
-        const data = await response.json();
-        setCandidates(data.data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch candidates');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCandidates();
-  }, [selectedFilter]);
+const CandidateList: React.FC<CandidateListProps> = ({
+  onStatusSelect,
+  setSelectedFilter,
+  loading,
+  error,
+  candidates,
+  selectedFilter,
+  setExpandedCandidate,
+  expandedCandidate
+}) => {
+  
 
   const handleStatusSelect = (status: string) => {
     setSelectedFilter(status);
@@ -213,7 +172,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ onStatusSelect }) => {
             filteredCandidates.map((candidate) => (
               <div key={candidate.id} className="bg-white rounded-lg border shadow-sm">
                 <div 
-                  className="flex items-center space-x-4 p-4 cursor-pointer"
+                  className="flex items-center space-x-1 p-4 cursor-pointer"
                   onClick={() => toggleExpand(candidate.id)}
                 >
                   <Avatar className="w-12 h-12">
@@ -230,13 +189,13 @@ const CandidateList: React.FC<CandidateListProps> = ({ onStatusSelect }) => {
                     </div>
                     <div className="text-xs text-gray-500 flex items-center justify-end gap-1">
                       {candidate.lastActivity}
-                      {candidate.final_outcome && (
-                        <span className={`px-2 py-0.5 rounded-full ${
-                          candidate.final_outcome === 'dropped_off' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      {candidate.loop_usage_time ? (
+                        <span className={`px-2 text-[10px] py-0.5 rounded-full ${
+                           'bg-green-100 text-green-800'
                         }`}>
-                          {candidate.final_outcome.replace(/_/g, ' ').toUpperCase()}
+                          Loop usage : {candidate.loop_usage_time}min
                         </span>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                   {expandedCandidate === candidate.id ? (

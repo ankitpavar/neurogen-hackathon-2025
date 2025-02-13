@@ -64,32 +64,24 @@ export function PromptFormDrawerContent({
 
 		setIsUploading(true)
 		try {
-			const response = await fetch(`/api/chat/${id}/files`, {
-				method: "POST",
-				body: formData
-			})
-
-			if (!response.ok) {
-				console.log(response)
-				throw new Error(`Upload failed: ${response.statusText}`)
-			}
-
-			const data = await response.json()
-			const fileNames = data?.files
+			// Simulate API call success
+			const fileNames = Array.from(formData.getAll("files") as File[])
+			  .map(file => file.name)
+			  .filter(Boolean);
+			
 			// Reset the form and close the drawer
-			setFileInputs([{ id: 0, display: FileUploadInput(0) }])
-			formRef.current?.reset()
-			close()
-			setIsUploading(false)
-			router.refresh()
-			await append({
-				role: "system",
+			setFileInputs([{ id: 0, display: FileUploadInput(0) }]);
+			formRef.current?.reset();
+			close();
+			setIsUploading(false);
+			append({
+				role: "user",
 				content: `[User has uploaded files: ${fileNames.toString()}]`
-			})
+			});
 		} catch (error) {
-			setIsUploading(false)
-			console.error("Upload error:", error)
-			toast.error("Failed to upload files")
+			setIsUploading(false);
+			console.error("Upload error:", error);
+			toast.error("Failed to upload files");
 		}
 	}
 	return (
