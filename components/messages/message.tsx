@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { UserIcon } from "@/components/ui/icons"
-import { Brain as Bot } from "lucide-react"
+import { Infinity as Bot } from "lucide-react"
 
 import { Markdown } from "./markdown"
 import { spinner } from "./spinner"

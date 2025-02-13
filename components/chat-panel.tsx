@@ -38,7 +38,7 @@ export function ChatPanel({
 				isAtBottom={isAtBottom}
 				scrollToBottom={scrollToBottom}
 			/>
-			<div className="mx-auto w-full sm:max-w-2xl sm:px-4 sm:pb-6">
+			<div className="mx-auto w-full sm:max-w-2xl sm:px-4 sm:pb-1">
 				<ChatCards id={id} messages={messages} append={append} />
 				<PromptForm
 					input={input}

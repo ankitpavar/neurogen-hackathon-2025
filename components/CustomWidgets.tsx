@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, Calendar, Clock, Mail, Filter } from 'lucide-react';
+import { BarChart3, Calendar, Clock, Mail, Filter, Bot, Brain, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const responseTimeData = [
@@ -26,20 +26,23 @@ const activityData = [
   { day: 'Fri', actions: 48 },
 ];
 
-// Add these types near the top of the file, after the imports
-type WidgetId = 'responseTime' | 'emailEngagement' | 'touchpoints' | 'activity';
-
-type WidgetFilters = {
-  [K in WidgetId]: string;
-};
+const aiAgentData = [
+  { hour: '9AM', predictions: 92, alerts: 3 },
+  { hour: '10AM', predictions: 88, alerts: 2 },
+  { hour: '11AM', predictions: 95, alerts: 1 },
+  { hour: '12PM', predictions: 85, alerts: 4 },
+  { hour: '1PM', predictions: 90, alerts: 2 },
+  { hour: '2PM', predictions: 87, alerts: 3 },
+];
 
 const CustomWidgets: React.FC = () => {
   const [timeRange, setTimeRange] = useState('week');
-  const [widgetFilters, setWidgetFilters] = useState<WidgetFilters>({
+  const [widgetFilters, setWidgetFilters] = useState({
     responseTime: 'all',
     emailEngagement: 'all',
     touchpoints: 'all',
     activity: 'all',
+    aiAgent: 'all',
   });
 
   const widgets = [
@@ -50,7 +53,7 @@ const CustomWidgets: React.FC = () => {
       change: -15,
       chart: 'bar',
       filters: ['All Teams', 'Engineering', 'Product', 'Design'],
-      id: 'responseTime' as WidgetId,
+      id: 'responseTime',
       renderChart: () => (
         <BarChart width={300} height={120} data={responseTimeData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -114,6 +117,44 @@ const CustomWidgets: React.FC = () => {
           <Tooltip />
           <Area type="monotone" dataKey="actions" fill="#6366f1" stroke="#4f46e5" />
         </AreaChart>
+      )
+    },
+    {
+      title: 'AI Agent Monitoring',
+      icon: Brain,
+      value: '90% Accuracy',
+      change: 8,
+      chart: 'aiAgent',
+      filters: ['All Predictions', 'Drop-off Risks', 'Engagement Alerts', 'Recommendations'],
+      id: 'aiAgent',
+      renderChart: () => (
+        <div>
+          <LineChart width={300} height={120} data={aiAgentData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="hour" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+            <Line yAxisId="left" type="monotone" dataKey="predictions" stroke="#6366f1" name="Prediction Accuracy %" />
+            <Line yAxisId="right" type="monotone" dataKey="alerts" stroke="#ef4444" name="Risk Alerts" />
+          </LineChart>
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center">
+                <Bot className="h-4 w-4 text-indigo-600 mr-2" />
+                Active Predictions
+              </span>
+              <span className="font-medium">24</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center">
+                <AlertTriangle className="h-4 w-4 text-red-600 mr-2" />
+                Risk Alerts
+              </span>
+              <span className="font-medium">15</span>
+            </div>
+          </div>
+        </div>
       )
     }
   ];

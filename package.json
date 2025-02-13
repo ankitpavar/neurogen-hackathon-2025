@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^2.0.0",
+    "@ai-sdk/google": "^1.1.12",
     "@ai-sdk/openai": "^1.1.9",
     "@auth0/nextjs-auth0": "^4.0.0",
     "@radix-ui/react-alert-dialog": "^1.1.5",

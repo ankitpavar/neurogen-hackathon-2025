@@ -1,6 +1,6 @@
 import { bedrock } from "@ai-sdk/amazon-bedrock"
-import { streamText } from "ai"
-
+import { smoothStream, streamText } from "ai"
+import { prompt } from "@/lib/constant"
 export const runtime = "edge"
 export const maxDuration = 30
 
@@ -8,12 +8,14 @@ export async function POST(req: Request) {
 	const { messages } = await req.json()
 	console.log(messages, "messages")
 
-	const model = bedrock("amazon.nova-lite-v1:0")
+	const model = bedrock('meta.llama3-70b-instruct-v1:0');
 
-	// Call the language model with the prompt
 	const result = streamText({
 		model,
-		messages
+		messages,
+    experimental_transform: smoothStream({ chunking: 'word' }),
+    system: prompt,
+    
 	})
 
 	return result.toDataStreamResponse()

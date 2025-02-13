@@ -22,9 +22,19 @@ export function ChatCards({ id, title, messages, append }: ChatCardsProps) {
 
 	const exampleMessages = [
 		{
-			heading: "What can you",
+			heading: "What can you do?",
 			subheading: "do?",
 			message: "What can you do?"
+		},
+		{
+			heading: "Analyze engagement",
+			subheading: "metrics for top candidates",
+			message: "Can you analyze the engagement metrics for our highest scoring candidates?"
+		},
+		{
+			heading: "Pipeline health",
+			subheading: "overview",
+			message: "Give me an overview of our current pipeline health and candidate distribution."
 		},
 	]
 
@@ -40,7 +50,7 @@ export function ChatCards({ id, title, messages, append }: ChatCardsProps) {
 
 	return (
 		<div className="">
-			<div className="mx-auto mb-4 grid grid-cols-2 gap-2 sm:px-0">
+			<div className="mx-auto mb-2 grid grid-cols-1 gap-2 sm:px-0">
 				{messages?.length === 0 &&
 					exampleMessages.map((example, index) => (
 						<div
