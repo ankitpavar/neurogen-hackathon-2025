@@ -1,105 +1,159 @@
 'use client'
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Mail, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-import { Candidate } from '@/lib/types';
+import React, { useState, useEffect } from 'react';
+import { 
+  ChevronDown, ChevronUp, Mail, Clock, CheckCircle, AlertCircle, ExternalLink, Calendar, XCircle, Ban,
+  Linkedin, Search, MessageCircle, Globe 
+} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { ScrollArea } from './ui/scroll-area';
+import { Skeleton } from "./ui/skeleton";
 
 interface CandidateListProps {
   onStatusSelect: (status: string) => void;
 }
 
-const mockCandidates: Candidate[] = [
-  {
-    id: '1',
-    name: 'Alex Johnson',
-    role: 'Senior Frontend Developer',
-    status: 'hot',
-    emailOpenRate: 95,
-    responseTime: 2,
-    touchpointCompletion: 100,
-    lastActivity: '2 hours ago',
-    engagementScore: 9.5,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: '2',
-    name: 'Sarah Chen',
-    role: 'Product Manager',
-    status: 'warm',
-    emailOpenRate: 75,
-    responseTime: 8,
-    touchpointCompletion: 80,
-    lastActivity: '1 day ago',
-    engagementScore: 8.7,
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: '3',
-    name: 'Siya Chonn',
-    role: 'Product Manager',
-    status: 'warm',
-    emailOpenRate: 75,
-    responseTime: 8,
-    touchpointCompletion: 80,
-    lastActivity: '4 day ago',
-    engagementScore: 7.9,
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  },
-  {
-    id: '4',
-    name: 'Will Smith',
-    role: 'Product Manager',
-    status: 'cold',
-    emailOpenRate: 75,
-    responseTime: 8,
-    touchpointCompletion: 80,
-    lastActivity: '7 day ago',
-    engagementScore: 5.2,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  }
-];
+interface Candidate {
+  id: string;
+  fullName: string;
+  role: string;
+  status: string;
+  emailOpenRate: number;
+  responseTime: number;
+  touchpointCompletion: number;
+  lastActivity: string;
+  engagement_score: number;
+  avatar: string;
+  email?: string;
+  linkedinActivity?: string;
+  naukriActivity?: string;
+  offerStatus?: string;
+  jobSearchActivity?: string;
+  whatsappResponse?: string;
+  loop_usage_time?: number;
+  final_outcome?: string;
+  action?: string;
+  timestamp?: string;
+  offer_status?: string;
+  naukri_activity?: string;
+  linkedin_activity?: string;
+  whatsapp_response?: string;
+  job_search_activity?: string;
+}
 
 const activityLog = [
-  { id: 1, type: 'email_open', points: 10, timestamp: '2024-03-15T10:30:00', description: 'Opened onboarding email' },
-  { id: 2, type: 'login', points: 15, timestamp: '2024-03-15T11:45:00', description: 'Logged into Loop platform' },
-  { id: 3, type: 'document_view', points: 20, timestamp: '2024-03-15T14:20:00', description: 'Viewed offer letter' },
-  { id: 4, type: 'meeting_attendance', points: 25, timestamp: '2024-03-15T16:00:00', description: 'Attended team introduction' },
+  { id: 1, type: 'email_opened', points: 10, timestamp: '2024-03-15T10:30:00', description: 'Opened onboarding email' },
+  { id: 2, type: 'link_clicked', points: 15, timestamp: '2024-03-15T11:45:00', description: 'Clicked job description link' },
+  { id: 3, type: 'meeting_scheduled', points: 20, timestamp: '2024-03-15T12:30:00', description: 'Scheduled interview with hiring manager' },
+  { id: 4, type: 'email_bounced', points: -5, timestamp: '2024-03-15T13:15:00', description: 'Email delivery failed' },
+  { id: 5, type: 'email_unsubscribed', points: -10, timestamp: '2024-03-15T14:00:00', description: 'Unsubscribed from communications' },
 ];
 
 const CandidateList: React.FC<CandidateListProps> = ({ onStatusSelect }) => {
   const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredCandidates = mockCandidates.filter(candidate => {
-    if (selectedFilter === 'all') return true;
-    return candidate.status === selectedFilter;
-  });
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        setLoading(true);
+        const url = selectedFilter === 'all' 
+          ? '/api/candidate'
+          : `/api/candidate?status=${selectedFilter}`;
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to fetch candidates');
+        }
+        
+        const data = await response.json();
+        setCandidates(data.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch candidates');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCandidates();
+  }, [selectedFilter]);
 
   const handleStatusSelect = (status: string) => {
     setSelectedFilter(status);
     onStatusSelect(status);
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-6 h-[450px]">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Candidates</h2>
+          <div className="flex gap-2">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="w-12 h-8 rounded-full" />
+            ))}
+          </div>
+        </div>
+        
+        <ScrollArea className="h-[calc(100%-5rem)]">
+          <div className="space-y-4 pr-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg border shadow-sm p-4">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="w-12 h-12 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                  <div className="text-right space-y-2">
+                    <Skeleton className="h-4 w-16 ml-auto" />
+                    <Skeleton className="h-3 w-24 ml-auto" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    );
+  }
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
+
+  const getFilteredCandidates = (candidates: Candidate[], filter: string) => {
+    switch (filter) {
+      case 'hot':
+        return candidates.filter(candidate => candidate.engagement_score >= 60);
+      case 'warm':
+        return candidates.filter(candidate => candidate.engagement_score >= 30 && candidate.engagement_score < 60);
+      case 'cold':
+        return candidates.filter(candidate => candidate.engagement_score < 30);
+      default:
+        return candidates;
+    }
+  };
+
+  const filteredCandidates = getFilteredCandidates(candidates, selectedFilter);
+
   const toggleExpand = (id: string) => {
     setExpandedCandidate(expandedCandidate === id ? null : id);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'hot':
-        return 'bg-green-100 text-green-800';
-      case 'warm':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cold':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'email_open':
-        return <Mail className="h-4 w-4 text-indigo-600" />;
+      case 'email_opened':
+        return <Mail className="h-4 w-4 text-blue-600" />;
+      case 'link_clicked':
+        return <ExternalLink className="h-4 w-4 text-purple-600" />;
+      case 'meeting_scheduled':
+        return <Calendar className="h-4 w-4 text-green-600" />;
+      case 'email_bounced':
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      case 'email_unsubscribed':
+        return <Ban className="h-4 w-4 text-red-600" />;
       case 'login':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'document_view':
@@ -112,7 +166,7 @@ const CandidateList: React.FC<CandidateListProps> = ({ onStatusSelect }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6 h-[450px]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Candidates</h2>
         <div className="flex gap-4">
@@ -153,76 +207,153 @@ const CandidateList: React.FC<CandidateListProps> = ({ onStatusSelect }) => {
         </div>
       </div>
       
-      <div className="space-y-4">
-        {filteredCandidates.map((candidate) => (
-          <div key={candidate.id} className="bg-white rounded-lg border shadow-sm">
-            <div 
-              className="flex items-center space-x-4 p-4 cursor-pointer"
-              onClick={() => toggleExpand(candidate.id)}
-            >
-              <img
-                src={candidate.avatar}
-                alt={candidate.name}
-                className="w-12 h-12 rounded-full"
-              />
-              <div className="flex-1">
-                <h3 className="font-medium">{candidate.name}</h3>
-                <p className="text-sm text-gray-500">{candidate.role}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-medium">
-                  Score: {candidate.engagementScore}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {candidate.lastActivity}
-                </div>
-              </div>
-              {expandedCandidate === candidate.id ? (
-                <ChevronUp className="h-5 w-5 text-gray-400" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
-              )}
-            </div>
-            
-            {expandedCandidate === candidate.id && (
-              <div className="border-t px-4 py-3">
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="text-sm text-gray-500">Email Open Rate</div>
-                    <div className="text-lg font-semibold">{candidate.emailOpenRate}%</div>
+      <ScrollArea className="h-[calc(100%-5rem)]">
+        <div className="space-y-4 pr-4">
+          {filteredCandidates.length > 0 ? (
+            filteredCandidates.map((candidate) => (
+              <div key={candidate.id} className="bg-white rounded-lg border shadow-sm">
+                <div 
+                  className="flex items-center space-x-4 p-4 cursor-pointer"
+                  onClick={() => toggleExpand(candidate.id)}
+                >
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage src={candidate.avatar} alt={candidate.fullName} />
+                    <AvatarFallback>{candidate.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="font-medium">{candidate.fullName}</h3>
+                    <p className="text-sm text-gray-500">{candidate.role}</p>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="text-sm text-gray-500">Response Time</div>
-                    <div className="text-lg font-semibold">{candidate.responseTime}h</div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium">
+                      Score: {candidate.engagement_score}
+                    </div>
+                    <div className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                      {candidate.lastActivity}
+                      {candidate.final_outcome && (
+                        <span className={`px-2 py-0.5 rounded-full ${
+                          candidate.final_outcome === 'dropped_off' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                        }`}>
+                          {candidate.final_outcome.replace(/_/g, ' ').toUpperCase()}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="text-sm text-gray-500">Touchpoint Completion</div>
-                    <div className="text-lg font-semibold">{candidate.touchpointCompletion}%</div>
-                  </div>
+                  {expandedCandidate === candidate.id ? (
+                    <ChevronUp className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  )}
                 </div>
                 
-                <div className="space-y-3">
-                  <h4 className="font-medium text-sm text-gray-700">Recent Activity</h4>
-                  {activityLog.map((activity) => (
-                    <div key={activity.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        {getActivityIcon(activity.type)}
-                        <span className="text-sm">{activity.description}</span>
+                {expandedCandidate === candidate.id && (
+                  <div className="border-t px-4 py-3">
+                    <div className="grid grid-cols-2 gap-6 mb-6">
+                      <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div className="text-sm text-gray-500 mb-1">Email</div>
+                        <div className="text-sm font-medium truncate">{candidate?.email}</div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-sm text-green-600">+{activity.points} pts</span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(activity.timestamp).toLocaleTimeString()}
-                        </span>
+                      <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div className="text-sm text-gray-500 mb-1">Offer Status</div>
+                        <div className="text-sm font-medium capitalize">{candidate?.offer_status?.replace(/_/g, ' ') || 'N/A'}</div>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div className="text-sm text-gray-500 mb-1">Loop Usage</div>
+                        <div className="text-lg font-medium">{candidate?.loop_usage_time || 0}min</div>
                       </div>
                     </div>
-                  ))}
+                  
+                  <div className="grid grid-cols-2 gap-6 mb-6">
+                    <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                      <div className="text-sm text-gray-500 mb-3">Job Platforms</div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between flex-col">
+                          <span className="text-sm font-medium flex items-center gap-2">
+                            <Linkedin className="h-4 w-4 text-blue-600" />
+                            LinkedIn
+                          </span>
+                          <span className="text-sm text-gray-600 capitalize">{candidate?.linkedin_activity?.replace(/_/g, ' ') || 'No activity'}</span>
+                        </div>
+                        <div className="flex justify-between flex-col">
+                          <span className="text-sm font-medium flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-orange-600" />
+                            Naukri
+                          </span>
+                          <span className="text-sm text-gray-600 capitalize">{candidate?.naukri_activity?.replace(/_/g, ' ') || 'No activity'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                      <div className="text-sm text-gray-500 mb-3">Communication</div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between flex-col">
+                          <span className="text-sm font-medium flex items-center gap-2">
+                            <MessageCircle className="h-4 w-4 text-green-600" />
+                            WhatsApp
+                          </span>
+                          <span className="text-sm text-gray-600 capitalize">{candidate?.whatsapp_response || 'No response'}</span>
+                        </div>
+                        <div className="flex justify-between flex-col">
+                          <span className="text-sm font-medium flex items-center gap-2">
+                            <Search className="h-4 w-4 text-blue-600" />
+                            Job Search
+                          </span>
+                          <span className="text-sm text-gray-600 capitalize">{candidate?.job_search_activity?.replace(/_/g, ' ') || 'Unknown'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-sm text-gray-700 mb-2">Recent Activity</h4>
+                    {candidate.action && (
+                      <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="flex items-center space-x-3">
+                          {getActivityIcon(candidate.action)}
+                          <span className="text-sm font-medium">
+                            {activityLog.find(activity => activity?.type === candidate.action)?.description || 'Unknown activity'}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          {(() => {
+                            const activity = activityLog.find(a => a.type === candidate?.action);
+                            const points = activity?.points ?? 0;
+                            return (
+                              <span className={`text-sm font-medium ${points >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {points >= 0 ? '+' : ''}{points} pts
+                              </span>
+                            );
+                          })()}
+                          <span className="text-sm text-gray-500">
+                            {candidate?.timestamp ? new Date(candidate?.timestamp).toLocaleString('en-US', {
+                              hour: 'numeric',
+                              minute: 'numeric',
+                              hour12: true,
+                              month: 'short',
+                              day: 'numeric'
+                            }) : 'Unknown time'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {!candidate.action && (
+                      <div className="text-sm text-gray-500 text-center py-3 bg-gray-50 rounded-lg">No recent activities</div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+              )}
+            </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+              <Search className="h-12 w-12 text-gray-400 mb-3" />
+              <p className="text-lg font-medium">No candidates found</p>
+              <p className="text-sm">Try adjusting your filters</p>
+            </div>
+          )
+        }
+        </div>
+      </ScrollArea>
     </div>
   );
 };

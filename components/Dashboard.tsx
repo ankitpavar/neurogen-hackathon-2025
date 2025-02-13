@@ -1,16 +1,6 @@
 "use client"
 
 import React, { useState } from "react"
-import {
-	Activity,
-	AlertTriangle,
-	BarChart3,
-	Briefcase,
-	Calendar,
-	MessageSquare,
-	Send,
-	Users
-} from "lucide-react"
 
 import { nanoid } from "@/lib/utils"
 
