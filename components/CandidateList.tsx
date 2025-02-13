@@ -133,7 +133,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
             <button
               onClick={() => handleStatusSelect('all')}
               className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                selectedFilter === 'all' ? 'bg-cyan-500 text-white' : 'bg-cyan-100 text-green-800 border-cyan-800 border-1'
+                selectedFilter === 'all' ? 'bg-cyan-500 text-white' : 'bg-cyan-100 text-green-800 border-cyan-800 border-[0.5px]'
               }`}
             >
               All
@@ -141,7 +141,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
             <button
               onClick={() => handleStatusSelect('hot')}
               className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                selectedFilter === 'hot' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-800 border-green-800 border-1'
+                selectedFilter === 'hot' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-800 border-green-800 border-[0.5px]'
               }`}
             >
               Hot
@@ -149,7 +149,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
             <button
               onClick={() => handleStatusSelect('warm')}
               className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                selectedFilter === 'warm' ? 'bg-yellow-500 text-white' : 'bg-yellow-100 text-yellow-800 border-yellow-800 border-1'
+                selectedFilter === 'warm' ? 'bg-yellow-500 text-white' : 'bg-yellow-100 text-yellow-800 border-yellow-800 border-[0.5px]'
               }`}
             >
               Warm
@@ -157,7 +157,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
             <button
               onClick={() => handleStatusSelect('cold')}
               className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                selectedFilter === 'cold' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-800 border-red-800 border-1'
+                selectedFilter === 'cold' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-800 border-red-800 border-[0.5px]'
               }`}
             >
               Cold
